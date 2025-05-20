@@ -7,15 +7,17 @@ import 'react-native-reanimated';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 import { useColorScheme } from '@/hooks/useColorScheme';
+import { useAuthRedirect } from '@/lib/auth/useAuthRedirect';
 
 export default function RootLayout() {
   const colorScheme = useColorScheme();
+  const checkingSession = useAuthRedirect();
 
   const [loaded] = useFonts({
     SpaceMono: require('../assets/fonts/SpaceMono-Regular.ttf'),
   });
 
-  if (!loaded) {
+  if (!loaded || checkingSession) {
     return null;
   }
 

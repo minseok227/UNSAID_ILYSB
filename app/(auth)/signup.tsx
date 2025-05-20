@@ -1,13 +1,13 @@
-import { useState } from 'react'
-import { TouchableOpacity, ScrollView } from 'react-native'
-import { useRouter } from 'expo-router'
-import { supabase } from '@/lib/supabase'
-import { ThemedView } from '@/components/ThemedView'
-import { ThemedText } from '@/components/ThemedText'
 import { ExternalLink } from '@/components/ExternalLink'
-import { submitUserProfile } from '@/submit/user/submitUserProfile'
-import  UserInfoFields  from '@/components/user/UserInfoFields'
-import  UserPrefsFields from '@/components/user/UserPrefsFields'
+import { ThemedText } from '@/components/ThemedText'
+import { ThemedView } from '@/components/ThemedView'
+import UserInfoFields from '@/components/user/UserInfoFields'
+import UserPrefsFields from '@/components/user/UserPrefsFields'
+import { submitUserProfile } from '@/lib/submit/user/submitUserProfile'
+import { supabase } from '@/lib/supabase'
+import { useRouter } from 'expo-router'
+import { useEffect, useState } from 'react'
+import { Alert, ScrollView, TouchableOpacity } from 'react-native'
 
 export default function SignupScreen() {
   const router = useRouter()
@@ -23,13 +23,20 @@ export default function SignupScreen() {
   const [food, setFood] = useState('')
   const [style, setStyle] = useState('')
 
+  const [isSubmitting, setIsSubmitting] = useState(false)
   const handleSubmit = async () => {
+    if (isSubmitting) return
+    setIsSubmitting(true)
+
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) {
+      setIsSubmitting(false)
       console.error('No user found')
+      Alert.alert('로그인 정보를 불러올 수 없습니다.')
       return
     }
-    const params = {
+
+    const success = await submitUserProfile({
       userId: user.id,
       name,
       birthdate,
@@ -42,14 +49,36 @@ export default function SignupScreen() {
       celebrity,
       food,
       style
-    }
-    const success = await submitUserProfile(params)
+    })
+
+    setIsSubmitting(false)
+
     if (success) {
       router.push('/(tabs)')
     } else {
       console.error('Signup failed')
+      Alert.alert('회원가입에 실패했습니다. 다시 시도해주세요.')
     }
   }
+
+  // Redirect existing users away from signup page
+  useEffect(() => {
+    const checkExistingUser = async () => {
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) return
+      const { data, error } = await supabase
+        .from('users')
+        .select('id')
+        .eq('id', user.id)
+        .single()
+      if (!error && data) {
+        // User already exists, redirect to home/tabs
+        router.replace('/(tabs)')
+      }
+    }
+    checkExistingUser()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   return (
     <ScrollView contentContainerStyle={{ padding: 24, flexGrow: 1 }}>
@@ -70,7 +99,14 @@ export default function SignupScreen() {
 
         <TouchableOpacity
           onPress={handleSubmit}
-          style={{ backgroundColor: 'black', padding: 16, borderRadius: 999, alignItems: 'center' }}
+          disabled={isSubmitting}
+          style={{
+            backgroundColor: 'black',
+            padding: 16,
+            borderRadius: 999,
+            alignItems: 'center',
+            opacity: isSubmitting ? 0.5 : 1
+          }}
         >
           <ThemedText style={{ color: 'white', fontWeight: '600' }}>Finish</ThemedText>
         </TouchableOpacity>

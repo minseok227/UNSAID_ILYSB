@@ -1,3 +1,4 @@
+import * as Linking from 'expo-linking'
 import { TouchableOpacity } from 'react-native'
 import { useRouter } from 'expo-router'
 import { supabase } from '@/lib/supabase'
@@ -9,17 +10,17 @@ export default function LoginScreen() {
   const router = useRouter()
 
   const handleLogin = async () => {
-    const { error } = await supabase.auth.signInWithOAuth({
+    const { data, error } = await supabase.auth.signInWithOAuth({
       provider: 'kakao',
       options: {
-        redirectTo: 'saidilysb://auth/callback',
+        redirectTo: 'unsaidilysb://auth/callback',
       },
     });
 
     if (error) {
       console.error('Login error:', error.message);
-    } else {
-      router.push('/signup');
+    } else if (data?.url) {
+      Linking.openURL(data.url); // ✅ Kakao 로그인 페이지로 리디렉트
     }
   }
 
