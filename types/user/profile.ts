@@ -25,7 +25,6 @@ export type UserPrefs = {
   hobby: string // 취미
 
   ideal_type: string // 이상형
-  age_group: string
   habit: string
 }
 

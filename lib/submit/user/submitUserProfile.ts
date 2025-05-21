@@ -1,63 +1,35 @@
-import { SubmitUserProfileParams } from '@/types/user/profile'
+// lib/submit/user/submitUserProfile.ts
+import { authorizedFetch } from '@/lib/fetcher'
 
-const API_BASE = process.env.EXPO_PUBLIC_API_BASE_URL || ''
+export async function submitUserProfile(data: {
+  name: string
+  birthdate: string
+  instagram_username: string
+  main_affiliation: string
+  sub_affiliation: string
+  mbti: string
+  favorite_artist: string
+  favorite_mood: string
+  favorite_food: string
+  preferred_style: string
+  hobby: string
+  ideal_type: string
+  habit: string
+}) {
+  try {
+    const res = await authorizedFetch('/api/user/profile', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    })
 
-export async function submitUserProfile({
-  userId,
-  name,
-  birthdate,
-  instagram_username,
-  main_affiliation,
-  sub_affiliation,
-  mbti,
-  favorite_artist,
-  favorite_mood,
-  favorite_food,
-  preferred_style,
-  hobby,
-  ideal_type,
-  age_group,
-  habit,
-}: SubmitUserProfileParams): Promise<boolean> {
-  // ✅ 기본 정보 전송 (init API)
-  const initPayload = {
-    name,
-    birthdate,
-    instagram_username,
-    main_affiliation,
-    sub_affiliation,
+    if (!res.ok) {
+      console.error(`❌ API /api/user/profile failed [${res.status}]:`, await res.text())
+      return false
+    }
+
+    return true
+  } catch (err) {
+    console.error('❌ submitUserProfile error:', err)
+    return false
   }
-
-  const initRes = await fetch(`${API_BASE}/api/user/init`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'x-user-id': userId,
-    },
-    body: JSON.stringify(initPayload),
-  })
-
-  // ✅ 선호 정보 전송 (prefs API)
-  const prefsPayload = {
-    mbti,
-    favorite_artist,
-    favorite_mood,
-    favorite_food,
-    preferred_style,
-    hobby,
-    ideal_type,
-    age_group,
-    habit,
-  }
-
-  const prefsRes = await fetch(`${API_BASE}/api/user/prefs`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'x-user-id': userId,
-    },
-    body: JSON.stringify(prefsPayload),
-  })
-
-  return initRes.ok && prefsRes.ok
 }
