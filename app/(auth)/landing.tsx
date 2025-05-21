@@ -4,9 +4,13 @@ import { useRouter } from 'expo-router'
 import { ThemedView } from '@/components/ThemedView'
 import { ThemedText } from '@/components/ThemedText'
 import {ExternalLink} from '@/components/ExternalLink'
+import { useAuthRedirect } from '@/lib/auth/useAuthRedirect'
 
 export default function LandingScreen() {
+  const isCheckingSession = useAuthRedirect()
   const router = useRouter()
+
+  if (isCheckingSession) return null;
 
   return (
     <ThemedView style={{

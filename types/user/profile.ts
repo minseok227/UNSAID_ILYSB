@@ -1,3 +1,12 @@
+// Aligned with Supabase `users` table schema (v3.7)
+
+export const MBTI_TYPES = [
+  'ISTJ', 'ISFJ', 'INFJ', 'INTJ',
+  'ISTP', 'ISFP', 'INFP', 'INTP',
+  'ESTP', 'ESFP', 'ENFP', 'ENTP',
+  'ESTJ', 'ESFJ', 'ENFJ', 'ENTJ'
+]
+
 export type UserInitInfo = {
   name: string
   birthdate: string
@@ -8,11 +17,16 @@ export type UserInitInfo = {
 
 export type UserPrefs = {
   mbti: string
-  keywords: string[]
-  music: string
-  celebrity: string
-  food: string
-  style: string
+  favorite_artist: string
+  favorite_mood: string
+  favorite_food: string
+
+  preferred_style: string // 선호 스타일
+  hobby: string // 취미
+
+  ideal_type: string // 이상형
+  age_group: string
+  habit: string
 }
 
 export type FullUserProfile = UserInitInfo & UserPrefs

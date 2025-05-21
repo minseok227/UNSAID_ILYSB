@@ -1,26 +1,28 @@
-import * as Linking from 'expo-linking'
-import { TouchableOpacity } from 'react-native'
-import { useRouter } from 'expo-router'
-import { supabase } from '@/lib/supabase'
-import { ThemedView } from '@/components/ThemedView'
-import { ThemedText } from '@/components/ThemedText'
+//카카오로그인 전 임시로 이메일 로인 사용
 import { ExternalLink } from '@/components/ExternalLink'
+import { ThemedText } from '@/components/ThemedText'
+import { ThemedView } from '@/components/ThemedView'
+import { handleUserRedirect } from '@/lib/auth/checkUserRoute'
+import { supabase } from '@/lib/supabase'
+import { useRouter } from 'expo-router'
+import { useState } from 'react'
+import { Alert, TextInput, TouchableOpacity, View } from 'react-native'
 
 export default function LoginScreen() {
   const router = useRouter()
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
 
   const handleLogin = async () => {
-    const { data, error } = await supabase.auth.signInWithOAuth({
-      provider: 'kakao',
-      options: {
-        redirectTo: 'unsaidilysb://auth/callback',
-      },
-    });
+    const { error } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    })
 
     if (error) {
-      console.error('Login error:', error.message);
-    } else if (data?.url) {
-      Linking.openURL(data.url); // ✅ Kakao 로그인 페이지로 리디렉트
+      Alert.alert('Login error', error.message)
+    } else {
+      await handleUserRedirect(router)
     }
   }
 
@@ -41,11 +43,46 @@ export default function LoginScreen() {
         Your feelings stay quiet,{"\n"}until you&apos;re ready to say them.
       </ThemedText>
 
+      <View style={{ width: '100%', marginBottom: 16 }}>
+        <TextInput
+          placeholder="Email"
+          value={email}
+          onChangeText={setEmail}
+          keyboardType="email-address"
+          autoCapitalize="none"
+          style={{
+            backgroundColor: '#fff',
+            borderColor: '#ccc',
+            borderWidth: 1,
+            borderRadius: 8,
+            paddingHorizontal: 12,
+            paddingVertical: 10,
+            marginBottom: 12,
+            fontSize: 16,
+          }}
+        />
+        <TextInput
+          placeholder="Password"
+          value={password}
+          onChangeText={setPassword}
+          secureTextEntry
+          style={{
+            backgroundColor: '#fff',
+            borderColor: '#ccc',
+            borderWidth: 1,
+            borderRadius: 8,
+            paddingHorizontal: 12,
+            paddingVertical: 10,
+            fontSize: 16,
+          }}
+        />
+      </View>
+
       <TouchableOpacity
         onPress={handleLogin}
         style={{
           width: '100%',
-          backgroundColor: '#FEE500',
+          backgroundColor: '#2563EB',
           borderRadius: 999,
           paddingVertical: 16,
           alignItems: 'center',
@@ -53,11 +90,11 @@ export default function LoginScreen() {
         }}
       >
         <ThemedText style={{
-          color: 'black',
+          color: 'white',
           fontSize: 16,
           fontWeight: '700',
         }}>
-          Continue with Kakao
+          Log In
         </ThemedText>
       </TouchableOpacity>
 

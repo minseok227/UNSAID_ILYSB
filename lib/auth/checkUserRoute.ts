@@ -3,10 +3,8 @@ import { Router } from 'expo-router'
 
 export async function handleUserRedirect(router: Router) {
   const { data: { user } } = await supabase.auth.getUser()
-  if (!user) {
-    router.replace('/login')
-    return
-  }
+
+  if (!user) return router.replace('/login')
 
   const { data, error } = await supabase
     .from('users')
@@ -14,9 +12,5 @@ export async function handleUserRedirect(router: Router) {
     .eq('id', user.id)
     .single()
 
-  if (error || !data) {
-    router.replace('/signup')
-  } else {
-    router.replace('/(tabs)')
-  }
+  router.replace(!error && data ? '/(tabs)' : '/signup')
 }

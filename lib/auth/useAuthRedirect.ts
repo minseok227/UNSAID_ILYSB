@@ -4,11 +4,20 @@ import { useEffect, useState } from 'react'
 
 export function useAuthRedirect() {
   const router = useRouter()
-  const [checkingSession, setCheckingSession] = useState(true)
+  const [isCheckingSession, setIsCheckingSession] = useState(true)
 
   useEffect(() => {
-    handleUserRedirect(router).finally(() => setCheckingSession(false))
+    const check = async () => {
+      try {
+        await handleUserRedirect(router)
+      } catch (err) {
+        console.error('Auth redirect failed:', err)
+      } finally {
+        setIsCheckingSession(false)
+      }
+    }
+    check()
   }, [router])
 
-  return checkingSession
+  return isCheckingSession
 }

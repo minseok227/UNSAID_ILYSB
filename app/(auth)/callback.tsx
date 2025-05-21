@@ -1,3 +1,5 @@
+// 카카오 사용할 때 쓸 것.
+
 import { handleUserRedirect } from '@/lib/auth/checkUserRoute'
 import { useRouter } from 'expo-router'
 import { useEffect } from 'react'

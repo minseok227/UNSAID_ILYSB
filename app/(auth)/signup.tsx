@@ -1,8 +1,9 @@
 import { ExternalLink } from '@/components/ExternalLink'
 import { ThemedText } from '@/components/ThemedText'
 import { ThemedView } from '@/components/ThemedView'
+import UserBasicHintFields from '@/components/user/UserBasicHintFields'
 import UserInfoFields from '@/components/user/UserInfoFields'
-import UserPrefsFields from '@/components/user/UserPrefsFields'
+import UserPremiumHintFields from '@/components/user/UserPremiumHintFields'
 import { submitUserProfile } from '@/lib/submit/user/submitUserProfile'
 import { supabase } from '@/lib/supabase'
 import { useRouter } from 'expo-router'
@@ -17,11 +18,16 @@ export default function SignupScreen() {
   const [mainAffiliation, setMainAffiliation] = useState('')
   const [subAffiliation, setSubAffiliation] = useState('')
   const [mbti, setMbti] = useState('')
-  const [keywords, setKeywords] = useState('')
-  const [music, setMusic] = useState('')
-  const [celebrity, setCelebrity] = useState('')
-  const [food, setFood] = useState('')
-  const [style, setStyle] = useState('')
+
+  const [favoriteArtist, setFavoriteArtist] = useState('')
+  const [favoriteMood, setFavoriteMood] = useState('')
+  const [favoriteFood, setFavoriteFood] = useState('')
+
+  const [preferredStyle, setPreferredStyle] = useState('')
+  const [hobby, setHobby] = useState('')
+  const [idealType, setIdealType] = useState('')
+  const [ageGroup, setAgeGroup] = useState('')
+  const [habit, setHabit] = useState('')
 
   const [isSubmitting, setIsSubmitting] = useState(false)
   const handleSubmit = async () => {
@@ -44,11 +50,14 @@ export default function SignupScreen() {
       main_affiliation: mainAffiliation,
       sub_affiliation: subAffiliation,
       mbti,
-      keywords: keywords.split(',').map(k => k.trim()),
-      music,
-      celebrity,
-      food,
-      style
+      favorite_artist: favoriteArtist,
+      favorite_mood: favoriteMood,
+      favorite_food: favoriteFood,
+      preferred_style: preferredStyle,
+      hobby,
+      ideal_type: idealType,
+      age_group: ageGroup,
+      habit
     })
 
     setIsSubmitting(false)
@@ -90,11 +99,36 @@ export default function SignupScreen() {
         <UserInfoFields
           values={{ name, birthdate, instagramUsername, mainAffiliation, subAffiliation }}
           onChange={{ setName, setBirthdate, setInstagramUsername, setMainAffiliation, setSubAffiliation }}
+          placeholders={{
+            name: 'Enter your name',
+            birthdate: 'YYYY-MM-DD',
+            instagramUsername: 'Instagram username',
+            mainAffiliation: 'Main affiliation',
+            subAffiliation: 'Sub affiliation'
+          }}
         />
 
-        <UserPrefsFields
-          values={{ mbti, keywords, music, celebrity, food, style }}
-          onChange={{ setMbti, setKeywords, setMusic, setCelebrity, setFood, setStyle }}
+        <UserBasicHintFields
+          values={{ favoriteArtist, favoriteMood, favoriteFood, mbti }}
+          onChange={{ setFavoriteArtist, setFavoriteMood, setFavoriteFood, setMbti }}
+          placeholders={{
+            favoriteArtist: 'Favorite artist',
+            favoriteMood: 'Favorite mood',
+            favoriteFood: 'Favorite food',
+            mbti: 'Select your MBTI'
+          }}
+        />
+
+        <UserPremiumHintFields
+          values={{ preferredStyle, hobby, idealType, ageGroup, habit }}
+          onChange={{ setPreferredStyle, setHobby, setIdealType, setAgeGroup, setHabit }}
+          placeholders={{
+            preferredStyle: 'Preferred style',
+            hobby: 'Your hobby',
+            idealType: 'Ideal type',
+            ageGroup: 'Age group',
+            habit: 'Habit'
+          }}
         />
 
         <TouchableOpacity
