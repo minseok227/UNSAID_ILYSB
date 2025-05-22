@@ -1,4 +1,4 @@
-//카카오로그인 전 임시로 이메일 로인 사용
+//카카오로그인 전 임시로 이메일 로인 사용  -- 101~120까지 테스트 로그인 코드 줄.
 import { ExternalLink } from '@/components/ExternalLink'
 import { ThemedText } from '@/components/ThemedText'
 import { ThemedView } from '@/components/ThemedView'
@@ -95,6 +95,26 @@ export default function LoginScreen() {
           fontWeight: '700',
         }}>
           Log In
+        </ThemedText>
+      </TouchableOpacity>
+
+      <TouchableOpacity
+        onPress={() => router.push('/testsignup')}
+        style={{
+          width: '100%',
+          backgroundColor: '#10B981',
+          borderRadius: 999,
+          paddingVertical: 16,
+          alignItems: 'center',
+          marginBottom: 16,
+        }}
+      >
+        <ThemedText style={{
+          color: 'white',
+          fontSize: 16,
+          fontWeight: '700',
+        }}>
+          Sign Up (Test)
         </ThemedText>
       </TouchableOpacity>
 

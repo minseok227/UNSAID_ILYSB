@@ -1,4 +1,4 @@
-// lib/fetcher.ts
+// lib/fetcher.ts --- jwt token 검증용.
 import { supabase } from '@/lib/supabase'
 
 export async function authorizedFetch(url: string, options: RequestInit = {}) {

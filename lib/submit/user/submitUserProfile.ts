@@ -1,5 +1,6 @@
 // lib/submit/user/submitUserProfile.ts
 import { authorizedFetch } from '@/lib/fetcher'
+import { API_BASE_URL } from '@/lib/constants'
 
 export async function submitUserProfile(data: {
   name: string
@@ -17,13 +18,14 @@ export async function submitUserProfile(data: {
   habit: string
 }) {
   try {
-    const res = await authorizedFetch('/api/user/profile', {
+    const res = await authorizedFetch(`${API_BASE_URL}/api/user/profile`, {
       method: 'POST',
       body: JSON.stringify(data),
     })
 
+    const body = await res.json()
     if (!res.ok) {
-      console.error(`❌ API /api/user/profile failed [${res.status}]:`, await res.text())
+      console.error(`❌ API /api/user/profile failed [${res.status}]:`, body)
       return false
     }
 

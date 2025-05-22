@@ -24,6 +24,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     habit,
   } = req.body
 
+console.log('[DEBUG] user object:', user)
+console.log('[DEBUG] userId:', user?.id, 'typeof:', typeof user?.id)
   const userId = user.id
   if (
     !userId ||
@@ -36,7 +38,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     return res.status(400).json({ error: 'Missing required fields' })
   }
 
-  // Calculate age and age_group
   const birthDateObj = new Date(birthdate)
   const today = new Date()
   let age = today.getFullYear() - birthDateObj.getFullYear()
@@ -54,8 +55,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     age_group = '20대 후반'
   }
 
-  const { error } = await supabaseAdmin.from('users').upsert({
-    id: userId, //auth user id
+  const { error } = await supabaseAdmin.from('users').insert({
+    id: userId,
     name,
     birthdate,
     age,
@@ -64,7 +65,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     allow_search: true,
     main_affiliation,
     sub_affiliation,
-    mbti,
+    mbti: [mbti],
     favorite_artist,
     favorite_mood,
     favorite_food,
@@ -74,6 +75,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     habit,
   })
 
-  if (error) return res.status(500).json({ error: error.message })
+  if (error) {
+    console.error('[❌ DB insert error]', error)
+    return res.status(500).json({ error: error.message })
+  }
+
+  console.log('[✅ DB insert success]', { userId, instagram_username })
   return res.status(200).json({ message: 'User profile submitted' })
 }
