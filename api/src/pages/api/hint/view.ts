@@ -1,44 +1,71 @@
-import { supabase } from '@/lib/supabase'
+// /pages/api/hint/view.ts
+import { verifyUser } from '@/lib/auth/verifyUser'
+import { supabaseAdmin } from '@/lib/supabase-admin'
 import type { NextApiRequest, NextApiResponse } from 'next'
-import { v4 as uuidv4 } from 'uuid'
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method !== 'POST') return res.status(405).end()
 
-  const viewer_id = req.headers['x-user-id'] as string
-  if (!viewer_id) return res.status(401).json({ error: 'Missing user ID' })
+  const { user, error: authError } = await verifyUser(req)
+  if (authError || !user) return res.status(401).json({ error: 'Unauthorized' })
 
-  const { target_id, hint_type, value_viewed, source } = req.body
-  if (!target_id || !hint_type || !source) {
-    return res.status(400).json({ error: 'Missing fields' })
+  const { target_id, hint_type, source } = req.body
+
+  if (!target_id || !['premium_a', 'premium_b'].includes(hint_type) || !['invite', 'payment'].includes(source)) {
+    return res.status(400).json({ error: 'Invalid parameters' })
   }
 
-  if (viewer_id === target_id) {
-    return res.status(403).json({ error: 'Cannot view your own hint' })
-  }
-
-  // ✅ 중복 체크
-  const { data: existing } = await supabase
+  // 1. 기존 열람 여부 확인
+  const { data: existing, error: fetchError } = await supabaseAdmin
     .from('hint_views')
-    .select('id')
-    .eq('viewer_id', viewer_id)
+    .select('source')
+    .eq('viewer_id', user.id)
     .eq('target_id', target_id)
     .eq('hint_type', hint_type)
-    .maybeSingle()
+    .single()
 
-  if (existing) {
-    return res.status(200).json({ message: 'Already viewed' })
+  if (fetchError && fetchError.code !== 'PGRST116') {
+    console.error('❌ Fetch error:', fetchError.message)
+    return res.status(500).json({ error: 'Failed to check existing hint view' })
   }
 
-  const { error } = await supabase.from('hint_views').insert({
-    id: uuidv4(),
-    viewer_id,
-    target_id,
-    hint_type,
-    value_viewed: value_viewed || null,
-    source
-  })
+  if (existing) {
+    const sources = existing.source.split(',').map((s: string) => s.trim())
+    if (sources.includes(source)) {
+      return res.status(409).json({ error: 'Hint already viewed with this source' })
+    }
 
-  if (error) return res.status(500).json({ error: error.message })
-  return res.status(200).json({ message: 'Hint viewed' })
+    const updatedSources = Array.from(new Set([...sources, source])).join(',')
+    const { error: updateError } = await supabaseAdmin
+      .from('hint_views')
+      .update({ source: updatedSources })
+      .eq('viewer_id', user.id)
+      .eq('target_id', target_id)
+      .eq('hint_type', hint_type)
+
+    if (updateError) {
+      console.error('❌ Update error:', updateError.message)
+      return res.status(500).json({ error: 'Failed to update source' })
+    }
+
+    return res.status(200).json({ success: true, message: 'Source updated' })
+  }
+
+  // 2. 최초 insert
+  const { error: insertError } = await supabaseAdmin
+    .from('hint_views')
+    .insert({
+      viewer_id: user.id,
+      target_id,
+      hint_type,
+      source,
+      viewed_at: new Date().toISOString(),
+    })
+
+  if (insertError) {
+    console.error('❌ Insert error:', insertError.message)
+    return res.status(500).json({ error: 'Failed to insert hint view' })
+  }
+
+  return res.status(201).json({ success: true, message: 'Hint unlocked' })
 }
