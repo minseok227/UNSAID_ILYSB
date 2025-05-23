@@ -1,4 +1,6 @@
 import { ThemedText } from '@/components/ThemedText'
+import AsyncStorage from '@react-native-async-storage/async-storage'
+import { useEffect, useState } from 'react'
 import { Keyboard, KeyboardAvoidingView, Platform, ScrollView, StyleSheet, TextInput, TouchableOpacity, TouchableWithoutFeedback, View } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 
@@ -12,6 +14,7 @@ interface Props {
     hobby: string
     idealType: string
     habit: string
+    referralCode?: string
   }
   onChange: {
     setMbti: (v: string) => void
@@ -22,6 +25,7 @@ interface Props {
     setHobby: (v: string) => void
     setIdealType: (v: string) => void
     setHabit: (v: string) => void
+    setReferralCode: (v: string) => void
   }
   onBack: () => void
   onSubmit: () => void
@@ -29,6 +33,18 @@ interface Props {
 
 export default function SignupPrefStep({ values, onChange, onBack, onSubmit }: Props) {
   const insets = useSafeAreaInsets()
+  const [initialReferralLoaded, setInitialReferralLoaded] = useState(false)
+
+  useEffect(() => {
+    if (!initialReferralLoaded) {
+      AsyncStorage.getItem('referralCode').then((code: string | null) => {
+        if (code && !values.referralCode) {
+          onChange.setReferralCode(code)
+        }
+        setInitialReferralLoaded(true)
+      })
+    }
+  }, [initialReferralLoaded, values.referralCode, onChange])
 
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
@@ -78,6 +94,15 @@ export default function SignupPrefStep({ values, onChange, onBack, onSubmit }: P
 
               <ThemedText style={styles.label}>🔁 Habit</ThemedText>
               <TextInput style={styles.input} value={values.habit ?? ''} onChangeText={onChange.setHabit} placeholder="e.g. 눈 피함" />
+
+              <ThemedText style={styles.label}>🔗 Referral Code (Optional)</ThemedText>
+              <TextInput
+                style={styles.input}
+                value={values.referralCode ?? ''}
+                onChangeText={onChange.setReferralCode}
+                placeholder="e.g. ABC123"
+                autoCapitalize="characters"
+              />
             </View>
           </View>
 
@@ -136,18 +161,18 @@ const styles = StyleSheet.create({
     color: '#111827'
   },
   label: {
-    fontSize: 14,
-    marginTop: 12,
+    fontSize: 13,
+    marginTop: 10,
     marginBottom: 4,
     color: '#4B5563',
-    fontWeight: '600'
+    fontWeight: '500'
   },
   input: {
     backgroundColor: '#F3F4F6',
-    paddingVertical: 12,
-    paddingHorizontal: 16,
-    borderRadius: 12,
-    fontSize: 16,
+    paddingVertical: 10,
+    paddingHorizontal: 14,
+    borderRadius: 10,
+    fontSize: 15,
   },
   inputGroup: {
     gap: 0,

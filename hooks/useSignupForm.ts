@@ -26,7 +26,8 @@ export function useSignupForm() {
     preferredStyle: '',
     hobby: '',
     idealType: '',
-    habit: ''
+    habit: '',
+    referralCode: ''
   })
 
   const goToNext = () => {
@@ -65,6 +66,7 @@ export function useSignupForm() {
         hobby: pref.hobby,
         ideal_type: pref.idealType,
         habit: pref.habit,
+        referralCode: pref.referralCode ?? null
       })
       if (success) {
         router.replace('/(tabs)')
@@ -99,7 +101,8 @@ export function useSignupForm() {
         setPreferredStyle: (v: string) => setPref((prev) => ({ ...prev, preferredStyle: v })),
         setHobby: (v: string) => setPref((prev) => ({ ...prev, hobby: v })),
         setIdealType: (v: string) => setPref((prev) => ({ ...prev, idealType: v })),
-        setHabit: (v: string) => setPref((prev) => ({ ...prev, habit: v }))
+        setHabit: (v: string) => setPref((prev) => ({ ...prev, habit: v })),
+        setReferralCode: (v: string) => setPref((prev) => ({ ...prev, referralCode: v }))
       }
     }
   }

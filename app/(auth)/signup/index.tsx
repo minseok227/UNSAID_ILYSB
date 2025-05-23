@@ -1,9 +1,9 @@
 import { useSignupForm } from '@/hooks/useSignupForm'
-import { StyleSheet, View, Animated, Dimensions } from 'react-native'
+import { Animated, Dimensions, StyleSheet, View } from 'react-native'
 import SignupBasicStep from './BasicStep'
 import SignupPrefStep from './PrefStep'
 
-import { useRef, useEffect } from 'react'
+import { useEffect, useRef } from 'react'
 
 export default function SignupScreen() {
   const {
@@ -41,7 +41,6 @@ export default function SignupScreen() {
           />
         </View>
         <View style={styles.slide}>
-          {/* Only render if values.pref exists */}
           {values.pref && (
             <SignupPrefStep
               values={values.pref}
@@ -67,7 +66,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   slide: {
-    width: '100%',
+    width: Dimensions.get('window').width,
     flex: 1,
   }
 })

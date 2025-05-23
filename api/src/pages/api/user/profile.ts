@@ -1,5 +1,6 @@
 import { verifyUser } from '@/lib/auth/verifyUser'
 import { supabaseAdmin } from '@/lib/supabase-admin'
+import { generateUniqueReferralCode } from '@/lib/utils/referral'
 import type { NextApiRequest, NextApiResponse } from 'next'
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
@@ -25,19 +26,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     referralCode,
   } = req.body
 
-  console.log('[DEBUG] user object:', user)
-  console.log('[DEBUG] userId:', user?.id, 'typeof:', typeof user?.id)
+  const userId = user.id
+  console.log('[DEBUG] userId:', userId)
   console.log('[DEBUG] referralCode input:', referralCode)
 
-  const userId = user.id
-  if (
-    !userId ||
-    typeof userId !== 'string' ||
-    !name ||
-    !birthdate ||
-    !instagram_username ||
-    !mbti
-  ) {
+  if (!userId || !name || !birthdate || !instagram_username || !mbti) {
     return res.status(400).json({ error: 'Missing required fields' })
   }
 
@@ -45,36 +38,34 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   const today = new Date()
   let age = today.getFullYear() - birthDateObj.getFullYear()
   const m = today.getMonth() - birthDateObj.getMonth()
-  if (m < 0 || (m === 0 && today.getDate() < birthDateObj.getDate())) {
-    age--
-  }
+  if (m < 0 || (m === 0 && today.getDate() < birthDateObj.getDate())) age--
 
   let age_group = ''
-  if (age >= 20 && age <= 23) {
-    age_group = '20대 초반'
-  } else if (age >= 24 && age <= 26) {
-    age_group = '20대 중반'
-  } else if (age >= 27 && age <= 29) {
-    age_group = '20대 후반'
-  }
+  if (age >= 20 && age <= 23) age_group = '20대 초반'
+  else if (age >= 24 && age <= 26) age_group = '20대 중반'
+  else if (age >= 27 && age <= 29) age_group = '20대 후반'
 
   let invited_by_user_id = null
   if (referralCode) {
-    const { data: inviter, error: referralError } = await supabaseAdmin
+    const { data: inviter, error } = await supabaseAdmin
       .from('users')
       .select('id')
       .eq('referral_code', referralCode)
       .maybeSingle()
 
-    if (referralError) {
-      console.error('[❌ referral lookup error]', referralError)
-    } else if (inviter) {
+    if (error) {
+      console.error('[❌ referral lookup error]', error)
+    }
+
+    if (inviter) {
       invited_by_user_id = inviter.id
-      console.log('[✅ referral matched inviter ID]', invited_by_user_id)
+      console.log('[✅ referral matched]', invited_by_user_id)
     } else {
-      console.warn('[⚠️ referralCode not matched]')
+      console.warn('[⚠️ referralCode not found]')
     }
   }
+
+  const referral_code = await generateUniqueReferralCode()
 
   const { error } = await supabaseAdmin.from('users').insert({
     id: userId,
@@ -94,8 +85,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     hobby,
     ideal_type,
     habit,
-    referral_code: generateReferralCode(userId),
-    invited_by_code: referralCode || null,
+    referral_code,
+    invited_by_code: referralCode ?? null,
     invited_by_user_id,
   })
 
@@ -104,15 +95,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     return res.status(500).json({ error: error.message })
   }
 
-  console.log('[✅ DB insert success]', { userId, instagram_username, referralCode, invited_by_user_id })
+  console.log('[✅ DB insert success]', { userId, referral_code, invited_by_user_id })
   return res.status(200).json({ message: 'User profile submitted' })
-}
-
-function generateReferralCode(userId: string) {
-  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'
-  let code = ''
-  for (let i = 0; i < 6; i++) {
-    code += chars.charAt(Math.floor(Math.random() * chars.length))
-  }
-  return code
 }
