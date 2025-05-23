@@ -6,22 +6,14 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context'
 
 interface Props {
   values: {
-    mbti: string
-    favoriteArtist: string
-    favoriteMood: string
     favoriteFood: string
-    preferredStyle: string
     hobby: string
     idealType: string
     habit: string
     referralCode?: string
   }
   onChange: {
-    setMbti: (v: string) => void
-    setFavoriteArtist: (v: string) => void
-    setFavoriteMood: (v: string) => void
     setFavoriteFood: (v: string) => void
-    setPreferredStyle: (v: string) => void
     setHobby: (v: string) => void
     setIdealType: (v: string) => void
     setHabit: (v: string) => void
@@ -65,26 +57,8 @@ export default function SignupPrefStep({ values, onChange, onBack, onSubmit }: P
           <View style={styles.card}>
             <ThemedText style={styles.sectionTitle}>Preferences</ThemedText>
             <View style={styles.inputGroup}>
-              <ThemedText style={styles.label}>🧠 MBTI</ThemedText>
-              <TextInput
-                style={styles.input}
-                value={values.mbti ?? ''}
-                onChangeText={(text) => onChange.setMbti(text.toUpperCase())}
-                autoCapitalize="characters"
-                placeholder="e.g. INFP"
-              />
-
-              <ThemedText style={styles.label}>🎤 Favorite Artist</ThemedText>
-              <TextInput style={styles.input} value={values.favoriteArtist ?? ''} onChangeText={onChange.setFavoriteArtist} placeholder="e.g. NewJeans" />
-
-              <ThemedText style={styles.label}>🌈 Favorite Mood</ThemedText>
-              <TextInput style={styles.input} value={values.favoriteMood ?? ''} onChangeText={onChange.setFavoriteMood} placeholder="e.g. 조용한 밤" />
-
               <ThemedText style={styles.label}>🍱 Favorite Food</ThemedText>
               <TextInput style={styles.input} value={values.favoriteFood ?? ''} onChangeText={onChange.setFavoriteFood} placeholder="e.g. 떡볶이" />
-
-              <ThemedText style={styles.label}>🧥 Preferred Style</ThemedText>
-              <TextInput style={styles.input} value={values.preferredStyle ?? ''} onChangeText={onChange.setPreferredStyle} placeholder="e.g. 스트릿" />
 
               <ThemedText style={styles.label}>🎯 Hobby</ThemedText>
               <TextInput style={styles.input} value={values.hobby ?? ''} onChangeText={onChange.setHobby} placeholder="e.g. 자전거" />

@@ -1,5 +1,5 @@
 // ✅ /api/ily/send.ts
-import { verifyUser } from '@/lib/auth/verifyUser'
+import { verifyUser } from '@/lib/hooks/auth/verifyUser'
 import { supabaseAdmin } from '@/lib/supabase-admin'
 import type { User } from '@supabase/supabase-js'
 import type { NextApiRequest, NextApiResponse } from 'next'

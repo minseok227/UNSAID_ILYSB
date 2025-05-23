@@ -1,7 +1,14 @@
-import { useSupabaseUser } from '@/hooks/useSupabaseUser'
+import { useSupabaseUser } from '@/hooks/userinfo/useSupabaseUser'
 import { submitUserProfile } from '@/lib/submit/user/submitUserProfile'
 import { useRouter } from 'expo-router'
 import { useState } from 'react'
+
+const MBTI_TYPES = [
+  'ISTJ', 'ISFJ', 'INFJ', 'INTJ',
+  'ISTP', 'ISFP', 'INFP', 'INTP',
+  'ESTP', 'ESFP', 'ENFP', 'ENTP',
+  'ESTJ', 'ESFJ', 'ENFJ', 'ENTJ'
+]
 
 export function useSignupForm() {
   const router = useRouter()
@@ -15,15 +22,12 @@ export function useSignupForm() {
     birthdate: '',
     instagramUsername: '',
     mainAffiliation: '',
-    subAffiliation: ''
+    subAffiliation: '',
+    mbti: ''
   })
 
   const [pref, setPref] = useState({
-    mbti: '',
-    favoriteArtist: '',
-    favoriteMood: '',
     favoriteFood: '',
-    preferredStyle: '',
     hobby: '',
     idealType: '',
     habit: '',
@@ -33,6 +37,10 @@ export function useSignupForm() {
   const goToNext = () => {
     if (!basic.name || !basic.birthdate || !basic.instagramUsername) {
       alert('이름, 생일, 인스타그램 ID를 먼저 입력해주세요.')
+      return
+    }
+    if (!MBTI_TYPES.includes(basic.mbti)) {
+      alert('올바른 MBTI를 입력해주세요. (예: INFP, ENTJ)')
       return
     }
     setStep(2)
@@ -45,24 +53,21 @@ export function useSignupForm() {
       console.warn('User ID is missing – cannot submit profile.')
       return
     }
-    if (!basic.name || !basic.birthdate || !pref.mbti) {
+    if (!basic.name || !basic.birthdate || !basic.mbti) {
       alert('Please fill in required fields.')
       return
     }
 
     setIsSubmitting(true)
     try {
-      const success = await submitUserProfile({
+      const { success, error } = await submitUserProfile({
         name: basic.name,
         birthdate: basic.birthdate,
         instagram_username: basic.instagramUsername,
         main_affiliation: basic.mainAffiliation,
         sub_affiliation: basic.subAffiliation,
-        mbti: pref.mbti,
-        favorite_artist: pref.favoriteArtist,
-        favorite_mood: pref.favoriteMood,
+        mbti: basic.mbti,
         favorite_food: pref.favoriteFood,
-        preferred_style: pref.preferredStyle,
         hobby: pref.hobby,
         ideal_type: pref.idealType,
         habit: pref.habit,
@@ -71,7 +76,7 @@ export function useSignupForm() {
       if (success) {
         router.replace('/(tabs)')
       } else {
-        alert('Signup failed. Please try again.')
+        alert(error ?? 'Signup failed. Please try again.')
       }
     } finally {
       setIsSubmitting(false)
@@ -91,14 +96,11 @@ export function useSignupForm() {
         setBirthdate: (v: string) => setBasic((prev) => ({ ...prev, birthdate: v })),
         setInstagramUsername: (v: string) => setBasic((prev) => ({ ...prev, instagramUsername: v })),
         setMainAffiliation: (v: string) => setBasic((prev) => ({ ...prev, mainAffiliation: v })),
-        setSubAffiliation: (v: string) => setBasic((prev) => ({ ...prev, subAffiliation: v }))
+        setSubAffiliation: (v: string) => setBasic((prev) => ({ ...prev, subAffiliation: v })),
+        setMbti: (v: string) => setBasic((prev) => ({ ...prev, mbti: v }))
       },
       pref: {
-        setMbti: (v: string) => setPref((prev) => ({ ...prev, mbti: v })),
-        setFavoriteArtist: (v: string) => setPref((prev) => ({ ...prev, favoriteArtist: v })),
-        setFavoriteMood: (v: string) => setPref((prev) => ({ ...prev, favoriteMood: v })),
         setFavoriteFood: (v: string) => setPref((prev) => ({ ...prev, favoriteFood: v })),
-        setPreferredStyle: (v: string) => setPref((prev) => ({ ...prev, preferredStyle: v })),
         setHobby: (v: string) => setPref((prev) => ({ ...prev, hobby: v })),
         setIdealType: (v: string) => setPref((prev) => ({ ...prev, idealType: v })),
         setHabit: (v: string) => setPref((prev) => ({ ...prev, habit: v })),

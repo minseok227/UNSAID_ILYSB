@@ -1,7 +1,7 @@
 // app/hooks/useUnlockHint.ts
 
+import { authorizedFetch } from '@/lib/auth/fetcher'
 import { API_BASE_URL } from '@/lib/constants'
-import { authorizedFetch } from '@/lib/fetcher'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 
 interface UnlockHintParams {

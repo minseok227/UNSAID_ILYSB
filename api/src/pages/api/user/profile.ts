@@ -1,6 +1,6 @@
-import { verifyUser } from '@/lib/auth/verifyUser'
+import { verifyUser } from '@/lib/hooks/auth/verifyUser'
 import { supabaseAdmin } from '@/lib/supabase-admin'
-import { generateUniqueReferralCode } from '@/lib/utils/referral'
+import { generateUniqueReferralCode } from '@/lib/hooks/generatereferral/referral'
 import type { NextApiRequest, NextApiResponse } from 'next'
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
@@ -16,10 +16,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     main_affiliation,
     sub_affiliation,
     mbti,
-    favorite_artist,
-    favorite_mood,
     favorite_food,
-    preferred_style,
     hobby,
     ideal_type,
     habit,
@@ -55,14 +52,15 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     if (error) {
       console.error('[❌ referral lookup error]', error)
+      return res.status(500).json({ error: 'Failed to validate referral code' })
     }
 
-    if (inviter) {
-      invited_by_user_id = inviter.id
-      console.log('[✅ referral matched]', invited_by_user_id)
-    } else {
-      console.warn('[⚠️ referralCode not found]')
+    if (!inviter) {
+      return res.status(400).json({ error: 'Invalid referral code' })
     }
+
+    invited_by_user_id = inviter.id
+    console.log('[✅ referral matched]', invited_by_user_id)
   }
 
   const referral_code = await generateUniqueReferralCode()
@@ -78,10 +76,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     main_affiliation,
     sub_affiliation,
     mbti: [mbti],
-    favorite_artist,
-    favorite_mood,
     favorite_food,
-    preferred_style,
     hobby,
     ideal_type,
     habit,

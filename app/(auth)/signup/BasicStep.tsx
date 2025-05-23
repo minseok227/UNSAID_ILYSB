@@ -1,5 +1,5 @@
 import { ThemedText } from '@/components/ThemedText'
-import { KeyboardAvoidingView, Platform, StyleSheet, TextInput, TouchableOpacity, View, Keyboard, TouchableWithoutFeedback, ScrollView } from 'react-native'
+import { Keyboard, KeyboardAvoidingView, Platform, ScrollView, StyleSheet, TextInput, TouchableOpacity, TouchableWithoutFeedback, View } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 
 interface Props {
@@ -9,6 +9,7 @@ interface Props {
     instagramUsername: string
     mainAffiliation: string
     subAffiliation: string
+    mbti: string
   }
   onChange: {
     setName: (v: string) => void
@@ -16,6 +17,7 @@ interface Props {
     setInstagramUsername: (v: string) => void
     setMainAffiliation: (v: string) => void
     setSubAffiliation: (v: string) => void
+    setMbti: (v: string) => void
   }
   onNext: () => void
 }
@@ -36,7 +38,10 @@ export default function SignupBasicStep({ values, onChange, onNext }: Props) {
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
         style={[styles.container, { paddingTop: insets.top + 32 }]}
       >
-        <ScrollView keyboardShouldPersistTaps="handled">
+        <ScrollView
+              keyboardShouldPersistTaps="handled"
+              contentContainerStyle={{ paddingBottom: 80 }}
+            >
           <ThemedText style={styles.title}>Complete Your Profile</ThemedText>
           <ThemedText style={styles.subtitle}>Step 1: Basic Info</ThemedText>
 
@@ -80,6 +85,15 @@ export default function SignupBasicStep({ values, onChange, onNext }: Props) {
                 value={values.subAffiliation ?? ''}
                 onChangeText={onChange.setSubAffiliation}
                 placeholder="e.g. Dept / Team"
+              />
+
+              <ThemedText style={styles.label}>🧠 MBTI</ThemedText>
+              <TextInput
+                style={styles.input}
+                value={values.mbti ?? ''}
+                onChangeText={(text) => onChange.setMbti(text.toUpperCase())}
+                autoCapitalize="characters"
+                placeholder="e.g. INFP"
               />
             </View>
           </View>

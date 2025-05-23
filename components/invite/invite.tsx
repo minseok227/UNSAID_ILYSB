@@ -1,107 +1,103 @@
-// 📁 /app/app/(tabs)/invite.tsx
-import { showToast } from '@/lib/toast'
+import { fetchMyReferralCode } from '@/lib/fetch/fetchMyReferralCode'
 import { FontAwesome, MaterialCommunityIcons } from '@expo/vector-icons'
-import * as Linking from 'expo-linking'
-import { useRouter } from 'expo-router'
 import { useEffect, useState } from 'react'
-import { Keyboard, KeyboardAvoidingView, Platform, StyleSheet, Text, TouchableOpacity } from 'react-native'
+import { Modal, Share, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
 
-const REFERRAL_CODE = 'ABCD1234' // 예시 코드, 이후 사용자 기반 동적 생성 필요
-const INVITE_URL = `https://stillunsaid.app/invite?via=${REFERRAL_CODE}`
+interface Props {
+  visible: boolean
+  onClose: () => void
+}
 
-export default function InviteScreen() {
-  const router = useRouter()
-  const [visible, setVisible] = useState(true)
-
-  useEffect(() => {
-    const timer = setTimeout(() => setVisible(false), 15000)
-    return () => clearTimeout(timer)
-  }, [])
+export default function InviteModal({ visible, onClose }: Props) {
+  const [referralCode, setReferralCode] = useState<string | null>(null)
 
   useEffect(() => {
-    const keyboardDidHideListener = Keyboard.addListener('keyboardDidHide', () => Keyboard.dismiss())
-    return () => keyboardDidHideListener.remove()
-  }, [])
+    if (visible) {
+      fetchMyReferralCode().then((code) => {
+        setReferralCode(code)
+      })
+    }
+  }, [visible])
 
-  function handleInstagramShare() {
-    Linking.openURL(INVITE_URL)
-    showToast('초대 링크가 Instagram으로 공유되었어요! 🎉')
-    router.push('/tabs')
+  const inviteUrl = `https://stillunsaid.app/invite?via=${referralCode}`
+
+  const handleShare = () => {
+    Share.share({
+      message: `누군가의 마음을 전하는 앱 💌\n지금 초대받아보세요!\n\n${inviteUrl}`,
+    })
   }
-  
-  function handleKakaoShare() {
-    Linking.openURL(INVITE_URL) // KakaoLink API로 대체 예정
-    showToast('초대 링크가 KakaoTalk으로 공유되었어요! 🎉')
-    router.push('/tabs')
-  }
+
   if (!visible) return null
 
   return (
-    <KeyboardAvoidingView
-      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-      style={styles.container}
-    >
-      <Text style={styles.emoji}>💌</Text>
-      <Text style={styles.title}>Help your friend be loved.</Text>
-      <Text style={styles.subtitle}>
-        Someone might be waiting. They may never say it — but you can help them be heard.
-      </Text>
+    <Modal transparent animationType="fade" visible={visible}>
+      <View style={styles.overlay}>
+        <View style={styles.modal}>
+          <Text style={styles.emoji}>💌</Text>
+          <Text style={styles.title}>친구를 초대해보세요</Text>
+          <Text style={styles.subtitle}>
+            누군가의 감정을 도와줄 수 있어요. 당신의 초대 한 번이면 충분해요.
+          </Text>
 
-      <TouchableOpacity style={styles.shareButton} onPress={handleInstagramShare}>
-        <FontAwesome name="camera" size={16} color="#000" style={styles.icon} />
-        <Text style={styles.shareText}>Invite via Instagram</Text>
-      </TouchableOpacity>
+          <TouchableOpacity style={styles.button} onPress={handleShare}>
+            <FontAwesome name="camera" size={16} color="#000" style={styles.icon} />
+            <Text style={styles.buttonText}>Instagram으로 초대</Text>
+          </TouchableOpacity>
 
-      <TouchableOpacity style={styles.kakaoButton} onPress={handleKakaoShare}>
-        <MaterialCommunityIcons name="chat" size={16} color="#000" style={styles.icon} />
-        <Text style={styles.shareText}>Invite via KakaoTalk</Text>
-      </TouchableOpacity>
+          <TouchableOpacity style={styles.kakaoButton} onPress={handleShare}>
+            <MaterialCommunityIcons name="chat" size={16} color="#000" style={styles.icon} />
+            <Text style={styles.buttonText}>KakaoTalk으로 초대</Text>
+          </TouchableOpacity>
 
-      <Text style={styles.reward}>🎁 Both you and your friend will get 1 free hint.</Text>
-    </KeyboardAvoidingView>
+          <Text style={styles.reward}>🎁 서로 힌트 1개씩 지급됩니다!</Text>
+
+          <TouchableOpacity onPress={onClose} style={styles.closeButton}>
+            <Text style={styles.closeText}>닫기</Text>
+          </TouchableOpacity>
+        </View>
+      </View>
+    </Modal>
   )
 }
 
 const styles = StyleSheet.create({
-  container: {
+  overlay: {
     flex: 1,
-    paddingTop: 80,
-    paddingHorizontal: 24,
+    backgroundColor: 'rgba(0,0,0,0.3)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 24,
+  },
+  modal: {
     backgroundColor: '#FFF8F0',
-    justifyContent: 'center'
+    borderRadius: 20,
+    padding: 24,
+    alignItems: 'center',
+    width: '100%',
   },
   emoji: {
     fontSize: 48,
-    marginBottom: 16,
-    textAlign: 'center'
+    marginBottom: 12,
   },
   title: {
     fontSize: 18,
     fontWeight: '700',
-    textAlign: 'center',
-    marginBottom: 12,
-    color: '#1E1E1E',
+    marginBottom: 4,
   },
   subtitle: {
     fontSize: 13,
-    textAlign: 'center',
     color: '#4B5563',
-    lineHeight: 18,
-    marginBottom: 24,
+    textAlign: 'center',
+    marginBottom: 20,
   },
-  shareButton: {
+  button: {
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: '#fff',
     borderRadius: 12,
     paddingVertical: 10,
     paddingHorizontal: 20,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.1,
-    shadowRadius: 2,
-    elevation: 2,
-    marginBottom: 10,
+    marginBottom: 12,
   },
   kakaoButton: {
     flexDirection: 'row',
@@ -111,14 +107,11 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     paddingHorizontal: 20,
     marginBottom: 20,
-    shadowColor: '#000',
-    shadowOpacity: 0.1,
-    elevation: 2,
   },
   icon: {
     marginRight: 8,
   },
-  shareText: {
+  buttonText: {
     fontSize: 13,
     fontWeight: '600',
     color: '#000',
@@ -126,6 +119,13 @@ const styles = StyleSheet.create({
   reward: {
     fontSize: 11,
     color: '#7A7A7A',
-    textAlign: 'center',
+    marginBottom: 8,
+  },
+  closeButton: {
+    marginTop: 4,
+  },
+  closeText: {
+    fontSize: 12,
+    color: '#6B7280',
   },
 })

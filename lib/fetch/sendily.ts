@@ -1,5 +1,5 @@
+import { authorizedFetch } from '@/lib/auth/fetcher'
 import { API_BASE_URL } from '@/lib/constants'
-import { authorizedFetch } from '@/lib/fetcher'
 
 /**
  * ILY 전송 API 호출

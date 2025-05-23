@@ -52,59 +52,59 @@ export function SendIlyModal({ user, visible, onCancel, onConfirmSuccess }: Prop
   )
 }
 
-  const styles = StyleSheet.create({
-    overlay: {
-      flex: 1,
-      backgroundColor: 'rgba(0,0,0,0.3)',
-      justifyContent: 'center',
-      alignItems: 'center',
-      padding: 24,
-    },
-    modal: {
-      backgroundColor: 'white',
-      borderRadius: 20,
-      padding: 32,
-      alignItems: 'center',
-      gap: 12,
-    },
-    emoji: {
-      fontSize: 56,
-      marginBottom: 4,
-    },
-    title: {
-      fontSize: 18,
-      fontWeight: '700',
-    },
-    subtext: {
-      fontSize: 14,
-      color: '#6B7280',
-      textAlign: 'center',
-      lineHeight: 20,
-    },
-    buttons: {
-      flexDirection: 'row',
-      gap: 12,
-      marginTop: 16,
-    },
-    cancelButton: {
-      borderWidth: 1,
-      borderColor: '#D1D5DB',
-      borderRadius: 999,
-      paddingVertical: 8,
-      paddingHorizontal: 20,
-    },
-    cancelText: {
-      color: '#6B7280',
-      fontWeight: '600',
-    },
-    confirmButton: {
-      backgroundColor: '#FECACA',
-      borderRadius: 999,
-      paddingVertical: 8,
-      paddingHorizontal: 20,
-    },
-    confirmText: {
-      color: 'white',
-      fontWeight: '600',
-    },
-  })
+const styles = StyleSheet.create({
+  overlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.3)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 24,
+  },
+  modal: {
+    backgroundColor: 'white',
+    borderRadius: 20,
+    padding: 32,
+    alignItems: 'center',
+    gap: 12,
+  },
+  emoji: {
+    fontSize: 56,
+    marginBottom: 4,
+  },
+  title: {
+    fontSize: 18,
+    fontWeight: '700',
+  },
+  subtext: {
+    fontSize: 14,
+    color: '#6B7280',
+    textAlign: 'center',
+    lineHeight: 20,
+  },
+  buttons: {
+    flexDirection: 'row',
+    gap: 12,
+    marginTop: 16,
+  },
+  cancelButton: {
+    borderWidth: 1,
+    borderColor: '#D1D5DB',
+    borderRadius: 999,
+    paddingVertical: 8,
+    paddingHorizontal: 20,
+  },
+  cancelText: {
+    color: '#6B7280',
+    fontWeight: '600',
+  },
+  confirmButton: {
+    backgroundColor: '#FECACA',
+    borderRadius: 999,
+    paddingVertical: 8,
+    paddingHorizontal: 20,
+  },
+  confirmText: {
+    color: 'white',
+    fontWeight: '600',
+  },
+})

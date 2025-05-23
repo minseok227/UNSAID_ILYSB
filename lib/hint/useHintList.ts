@@ -1,7 +1,7 @@
 // lib/hooks/useHintList.ts
 
+import { authorizedFetch } from '@/lib/auth/fetcher'
 import { API_BASE_URL } from '@/lib/constants'
-import { authorizedFetch } from '@/lib/fetcher'
 import { useQuery } from '@tanstack/react-query'
 
 interface HintRow {
