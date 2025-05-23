@@ -1,28 +1,46 @@
-
+// 📁 /app/app/(tabs)/invite.tsx
 import { showToast } from '@/lib/toast'
 import { FontAwesome, MaterialCommunityIcons } from '@expo/vector-icons'
+import * as Linking from 'expo-linking'
 import { useRouter } from 'expo-router'
-import { StyleSheet, Text, TouchableOpacity, View } from 'react-native'
+import { useEffect, useState } from 'react'
+import { Keyboard, KeyboardAvoidingView, Platform, StyleSheet, Text, TouchableOpacity } from 'react-native'
 
-export function InviteCard() {
+const REFERRAL_CODE = 'ABCD1234' // 예시 코드, 이후 사용자 기반 동적 생성 필요
+const INVITE_URL = `https://stillunsaid.app/invite?via=${REFERRAL_CODE}`
+
+export default function InviteScreen() {
   const router = useRouter()
+  const [visible, setVisible] = useState(true)
+
+  useEffect(() => {
+    const timer = setTimeout(() => setVisible(false), 15000)
+    return () => clearTimeout(timer)
+  }, [])
+
+  useEffect(() => {
+    const keyboardDidHideListener = Keyboard.addListener('keyboardDidHide', () => Keyboard.dismiss())
+    return () => keyboardDidHideListener.remove()
+  }, [])
 
   function handleInstagramShare() {
-    // TODO: implement sharing logic -> logic 분리 예정 
-    console.log('Instagram 공유')
-    showToast('초대가 완료되었어요! 🎉')
+    Linking.openURL(INVITE_URL)
+    showToast('초대 링크가 Instagram으로 공유되었어요! 🎉')
     router.push('/tabs')
   }
-
+  
   function handleKakaoShare() {
-    // TODO: implement KakaoLink -> logic 분리 예정.
-    console.log('Kakao 공유')
-    showToast('초대가 완료되었어요! 🎉')
+    Linking.openURL(INVITE_URL) // KakaoLink API로 대체 예정
+    showToast('초대 링크가 KakaoTalk으로 공유되었어요! 🎉')
     router.push('/tabs')
   }
+  if (!visible) return null
 
   return (
-    <View style={styles.container}>
+    <KeyboardAvoidingView
+      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+      style={styles.container}
+    >
       <Text style={styles.emoji}>💌</Text>
       <Text style={styles.title}>Help your friend be loved.</Text>
       <Text style={styles.subtitle}>
@@ -40,19 +58,22 @@ export function InviteCard() {
       </TouchableOpacity>
 
       <Text style={styles.reward}>🎁 Both you and your friend will get 1 free hint.</Text>
-    </View>
+    </KeyboardAvoidingView>
   )
 }
 
 const styles = StyleSheet.create({
   container: {
-    padding: 20,
-    borderRadius: 16,
-    backgroundColor: '#FFFFFF',
+    flex: 1,
+    paddingTop: 80,
+    paddingHorizontal: 24,
+    backgroundColor: '#FFF8F0',
+    justifyContent: 'center'
   },
   emoji: {
     fontSize: 48,
     marginBottom: 16,
+    textAlign: 'center'
   },
   title: {
     fontSize: 18,

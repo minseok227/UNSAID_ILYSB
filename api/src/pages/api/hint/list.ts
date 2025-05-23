@@ -13,16 +13,28 @@ type HintRow = {
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method !== 'GET') return res.status(405).end()
 
+  console.log('📥 [hint/list] Incoming request')
+
   const { user, error: authError } = await verifyUser(req)
-  if (authError || !user) return res.status(401).json({ error: 'Unauthorized' })
+  if (authError || !user) {
+    console.warn('❌ [hint/list] Unauthorized request', authError)
+    return res.status(401).json({ error: 'Unauthorized' })
+  }
+
+  console.log('✅ [hint/list] Verified user:', user.id)
 
   const { data, error } = await supabaseAdmin.rpc('get_hints_grouped', {
     user_id: user.id,
   })
 
   if (error) {
-    console.error('❌ Supabase RPC Error:', error.message)
+    console.error('❌ [hint/list] Supabase RPC Error:', error.message)
     return res.status(500).json({ error: error.message })
+  }
+
+  if (!data || data.length === 0) {
+    console.log('ℹ️ [hint/list] No ILY/ILYSB data found for user:', user.id)
+    return res.status(200).json([])
   }
 
   const result = (data as HintRow[]).map((d, i) => ({
@@ -31,8 +43,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     basic: d.basic,
     premium_a: d.premium_a,
     premium_b: d.premium_b,
-    sources: d.sources ?? []
+    sources: d.sources ?? [],
   }))
+
+  console.log('📤 [hint/list] Returning result:', result)
 
   return res.status(200).json(result)
 }

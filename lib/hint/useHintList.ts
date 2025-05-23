@@ -18,11 +18,24 @@ export function useHintList() {
     queryKey: ['hintList'],
     queryFn: async () => {
       const res = await authorizedFetch(`${API_BASE_URL}/api/hint/list`)
+      const body = await res.json()
+
       if (!res.ok) {
-        const err = await res.json()
-        throw new Error(err.error || '힌트 목록 불러오기 실패')
+        console.error(`❌ API /api/hint/list failed [${res.status}]:`, body)
+        throw new Error(body.error || '힌트 목록 불러오기 실패')
       }
-      return res.json()
+
+      if (!Array.isArray(body)) {
+        console.warn('⚠️ API /api/hint/list 응답이 배열이 아님:', body)
+        return []
+      }
+
+      if (body.length === 0) {
+        console.log('ℹ️ API /api/hint/list 성공했지만 데이터 없음')
+        return []
+      }
+
+      return body
     },
   })
 }
