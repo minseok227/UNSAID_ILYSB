@@ -1,4 +1,4 @@
-// /pages/api/invite/bind.ts
+// 나중에 초대 코드 넣었을 때 사용하는 API  
 import { verifyUser } from '@/lib/hooks/auth/verifyUser'
 import { supabaseAdmin } from '@/lib/supabase-admin'
 import type { NextApiRequest, NextApiResponse } from 'next'
@@ -43,7 +43,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   }
 
   if (!inviter) {
-    return res.status(400).json({ error: 'Invalid referral code' })
+    return res.status(400).json({ error: 'Invalid refer ral code' })
   }
 
   // 3. 업데이트

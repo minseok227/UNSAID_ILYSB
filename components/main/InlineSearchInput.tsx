@@ -7,6 +7,7 @@ type UserResult = {
   name: string
   instagram_username: string
 }
+
 interface Props {
   onResult: (user: UserResult | null) => void
 }
@@ -18,7 +19,7 @@ export function InlineSearchStepInput({ onResult }: Props) {
 
   const isSearchable = name.trim().length > 1 && instaId.trim().length > 2
 
-  const { data, isPending } = useSearchUser(name, instaId, searchClicked)
+  const { data, isPending } = useSearchUser(name, instaId, searchClicked) // ✅ searchClicked 조건 전달
 
   useEffect(() => {
     if (!isPending && searchClicked) {
@@ -37,22 +38,28 @@ export function InlineSearchStepInput({ onResult }: Props) {
         <Text style={styles.searchIcon}>🔍</Text>
         <TextInput
           placeholder="이름을 입력해주세요"
+          placeholderTextColor="#9CA3AF"
           value={name}
           onChangeText={setName}
           style={{ flex: 1, fontSize: 14 }}
         />
       </View>
+
       {name.trim().length > 1 && (
         <TextInput
           placeholder="@인스타그램 ID를 입력해주세요"
+          placeholderTextColor="#9CA3AF"
           value={instaId}
           onChangeText={setInstaId}
           style={styles.input}
         />
       )}
+
       {isSearchable && (
         <TouchableOpacity onPress={handleSearch} style={styles.button}>
-          <Text style={styles.buttonText}>{isPending ? '검색 중...' : '검색'}</Text>
+          <Text style={styles.buttonText}>
+            {searchClicked && isPending ? '검색 중...' : '검색'}
+          </Text>
         </TouchableOpacity>
       )}
     </View>

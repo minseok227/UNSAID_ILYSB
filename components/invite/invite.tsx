@@ -13,11 +13,10 @@ export default function InviteModal({ visible, onClose }: Props) {
   if (!visible) return null
 
   const inviteUrl = `https://stillunsaid.app/invite?via=${referralCode ?? '...'}`
+  const inviteMessage = `당신의 친구가 좋아하는 사람이 있대요 😳\n마음을 전하는 걸 도와줄 수 있어요.\n지금 초대받아보세요! 💌\n\n🔗 링크: ${inviteUrl}\n📮 초대코드: ${referralCode ?? '...'}`
 
   const handleShare = () => {
-    Share.share({
-      message: `누군가의 마음을 전하는 앱 💌\n지금 초대받아보세요!\n\n${inviteUrl}`,
-    })
+    Share.share({ message: inviteMessage })
   }
 
   return (
@@ -29,6 +28,12 @@ export default function InviteModal({ visible, onClose }: Props) {
           <Text style={styles.subtitle}>
             누군가의 감정을 도와줄 수 있어요. 당신의 초대 한 번이면 충분해요.
           </Text>
+
+          {referralCode && (
+            <Text style={styles.codeText}>
+              🔑 내 초대코드: <Text style={{ fontWeight: 'bold' }}>{referralCode}</Text>
+            </Text>
+          )}
 
           <TouchableOpacity style={styles.button} onPress={handleShare} disabled={!referralCode}>
             <FontAwesome name="camera" size={16} color="#000" style={styles.icon} />
@@ -80,6 +85,12 @@ const styles = StyleSheet.create({
     color: '#4B5563',
     textAlign: 'center',
     marginBottom: 20,
+  },
+  codeText: {
+    fontSize: 13,
+    color: '#6B21A8',
+    textAlign: 'center',
+    marginBottom: 10,
   },
   button: {
     flexDirection: 'row',

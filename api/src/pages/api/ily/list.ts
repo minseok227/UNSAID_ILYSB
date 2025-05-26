@@ -64,15 +64,19 @@ export default async function handler(
     const isIlysb = days >= 3
     const expireBase = isIlysb ? 35 : 21
 
-    return {
-      id: toUser.id,
-      name: toUser.name,
-      username: toUser.instagram_username,
-      sent: true,
-      isIlysb,
-      daysToSb: Math.max(0, 3 - days),
-      daysToExpire: Math.max(0, expireBase - days),
-    }
+    const waitingForIlysb =
+    days >= 3 && days < 5 ? true : false  // 🔥 핵심 조건 추가
+  
+  return {
+    id: toUser.id,
+    name: toUser.name,
+    username: toUser.instagram_username,
+    sent: true,
+    isIlysb,
+    daysToSb: Math.max(0, 3 - days),
+    daysToExpire: Math.max(0, expireBase - days),
+    waitingForIlysb, // ✅ 프론트로 전달
+  }
   })
 
   return res.status(200).json(result)

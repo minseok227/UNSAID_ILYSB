@@ -23,26 +23,40 @@ export function IlyCard({ user, onSend }: Props) {
   const isEligibleToSendIlysb = user.daysToSb <= 0 && !user.isIlysb
   const isExpired = user.daysToExpire <= 0
 
+  const renderTimeToSb = () => {
+    if (user.daysToSb > 2) {
+      return `• 진심까지 ${user.daysToSb}일 남음`
+    } else {
+      const hours = Math.floor(user.daysToSb * 24)
+      const minutes = Math.floor((user.daysToSb * 24 * 60) % 60)
+      return `• 진심까지 ${hours}시간 ${minutes}분 남음`
+    }
+  }
+
   return (
     <ThemedView style={styles.card}>
       <View style={styles.userRow}>
-        <IconSymbol name="heart.fill" size={24} color={heartColor} />
-        <View>
-          <ThemedText style={styles.name}>{user.name}</ThemedText>
-          <ThemedText style={styles.username}>@{user.username}</ThemedText>
+        <View style={styles.userInfo}>
+          <IconSymbol name="heart.fill" size={24} color={heartColor} />
+          <View>
+            <ThemedText style={styles.name}>{user.name}</ThemedText>
+            <ThemedText style={styles.username}>@{user.username}</ThemedText>
+          </View>
         </View>
-      </View>
 
-      <ThemedText style={styles.sentTag}>Sended</ThemedText>
+        <ThemedText style={styles.sentTag}>Sended</ThemedText>
+      </View>
 
       {user.isIlysb ? (
         <ThemedText style={[styles.meta, { color: '#7C3AED' }]}>💌 진심을 이미 보냈어요</ThemedText>
       ) : (
         <>
-          <ThemedText style={styles.meta}>• 진심까지 {user.daysToSb}일 남음</ThemedText>
+          <ThemedText style={styles.meta}>{renderTimeToSb()}</ThemedText>
           <ThemedText style={styles.meta}>• ILY 만료까지 D-{user.daysToExpire}</ThemedText>
           {isEligibleToSendIlysb && (
-            <ThemedText style={[styles.meta, { color: '#7C3AED', fontWeight: '600' }]}>💜 지금 진심을 전할 수 있어요!</ThemedText>
+            <ThemedText style={[styles.meta, { color: '#7C3AED', fontWeight: '600' }]}>
+              💜 지금 진심을 전할 수 있어요!
+            </ThemedText>
           )}
         </>
       )}
@@ -84,6 +98,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: 12,
     marginBottom: 12,
+  },
+  userInfo: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
   },
   name: {
     fontSize: 18,

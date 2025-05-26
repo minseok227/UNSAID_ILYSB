@@ -1,5 +1,5 @@
 import InviteModal from '@/components/invite/invite'
-import IlyCardList from '@/components/main/IlycardList'
+import { IlyCardList } from '@/components/main/IlycardList'
 import { InlineSearchStepInput } from '@/components/main/InlineSearchInput'
 import { SearchedUserCard } from '@/components/main/SearchedUserCard'
 import { SendIlyModal } from '@/components/main/SendIlyModal'

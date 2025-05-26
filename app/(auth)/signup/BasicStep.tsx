@@ -53,6 +53,7 @@ export default function SignupBasicStep({ values, onChange, onNext }: Props) {
                 value={values.name ?? ''}
                 onChangeText={onChange.setName}
                 placeholder="e.g. Jane Doe"
+                placeholderTextColor="#9CA3AF" 
               />
 
               <ThemedText style={styles.label}>📅 Birthdate (YYYY-MM-DD)</ThemedText>
@@ -61,6 +62,7 @@ export default function SignupBasicStep({ values, onChange, onNext }: Props) {
                 value={values.birthdate ?? ''}
                 onChangeText={(text) => onChange.setBirthdate(formatDateInput(text))}
                 placeholder="e.g. 1999-05-21"
+                placeholderTextColor="#9CA3AF" 
               />
 
               <ThemedText style={styles.label}>📸 Instagram ID</ThemedText>
@@ -69,6 +71,7 @@ export default function SignupBasicStep({ values, onChange, onNext }: Props) {
                 value={values.instagramUsername ?? ''}
                 onChangeText={onChange.setInstagramUsername}
                 placeholder="e.g. @yourid"
+                placeholderTextColor="#9CA3AF" 
               />
 
               <ThemedText style={styles.label}>🏫 Main Affiliation</ThemedText>
@@ -77,6 +80,7 @@ export default function SignupBasicStep({ values, onChange, onNext }: Props) {
                 value={values.mainAffiliation ?? ''}
                 onChangeText={onChange.setMainAffiliation}
                 placeholder="e.g. University / Company"
+                placeholderTextColor="#9CA3AF" 
               />
 
               <ThemedText style={styles.label}>👥 Sub Affiliation</ThemedText>
@@ -85,6 +89,7 @@ export default function SignupBasicStep({ values, onChange, onNext }: Props) {
                 value={values.subAffiliation ?? ''}
                 onChangeText={onChange.setSubAffiliation}
                 placeholder="e.g. Dept / Team"
+                placeholderTextColor="#9CA3AF" 
               />
 
               <ThemedText style={styles.label}>🧠 MBTI</ThemedText>
@@ -94,6 +99,7 @@ export default function SignupBasicStep({ values, onChange, onNext }: Props) {
                 onChangeText={(text) => onChange.setMbti(text.toUpperCase())}
                 autoCapitalize="characters"
                 placeholder="e.g. INFP"
+                placeholderTextColor="#9CA3AF" 
               />
             </View>
           </View>

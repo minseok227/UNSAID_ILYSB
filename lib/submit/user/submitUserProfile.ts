@@ -16,20 +16,6 @@ export async function submitUserProfile(data: {
   referralCode?: string
 }): Promise<{ success: boolean; error?: string }> {
   try {
-    // 1. Bind referral code if present
-    if (data.referralCode) {
-      const bindRes = await authorizedFetch(`${API_BASE_URL}/api/invite/bind`, {
-        method: 'POST',
-        body: JSON.stringify({ referralCode: data.referralCode }),
-      })
-
-      if (!bindRes.ok) {
-        const err = await bindRes.json()
-        return { success: false, error: err.error ?? 'Invalid referral code' }
-      }
-    }
-
-    // 2. Submit user profile
     const res = await authorizedFetch(`${API_BASE_URL}/api/user/profile`, {
       method: 'POST',
       body: JSON.stringify(data),

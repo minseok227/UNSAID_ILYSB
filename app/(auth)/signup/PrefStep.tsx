@@ -58,16 +58,18 @@ export default function SignupPrefStep({ values, onChange, onBack, onSubmit }: P
             <ThemedText style={styles.sectionTitle}>Preferences</ThemedText>
             <View style={styles.inputGroup}>
               <ThemedText style={styles.label}>🍱 Favorite Food</ThemedText>
-              <TextInput style={styles.input} value={values.favoriteFood ?? ''} onChangeText={onChange.setFavoriteFood} placeholder="e.g. 떡볶이" />
+              <TextInput style={styles.input} value={values.favoriteFood ?? ''} 
+              onChangeText={onChange.setFavoriteFood} placeholder="e.g. 떡볶이"
+              placeholderTextColor="#9CA3AF"  />
 
               <ThemedText style={styles.label}>🎯 Hobby</ThemedText>
-              <TextInput style={styles.input} value={values.hobby ?? ''} onChangeText={onChange.setHobby} placeholder="e.g. 자전거" />
+              <TextInput style={styles.input} value={values.hobby ?? ''} onChangeText={onChange.setHobby} placeholder="e.g. 자전거" placeholderTextColor="#9CA3AF" />
 
               <ThemedText style={styles.label}>💘 Ideal Type</ThemedText>
-              <TextInput style={styles.input} value={values.idealType ?? ''} onChangeText={onChange.setIdealType} placeholder="e.g. 리드형" />
+              <TextInput style={styles.input} value={values.idealType ?? ''} onChangeText={onChange.setIdealType} placeholder="e.g. 리드형" placeholderTextColor="#9CA3AF"  />
 
               <ThemedText style={styles.label}>🔁 Habit</ThemedText>
-              <TextInput style={styles.input} value={values.habit ?? ''} onChangeText={onChange.setHabit} placeholder="e.g. 눈 피함" />
+              <TextInput style={styles.input} value={values.habit ?? ''} onChangeText={onChange.setHabit} placeholder="e.g. 눈 피함" placeholderTextColor="#9CA3AF"  />
 
               <ThemedText style={styles.label}>🔗 Referral Code (Optional)</ThemedText>
               <TextInput
