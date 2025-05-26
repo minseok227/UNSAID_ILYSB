@@ -1,7 +1,5 @@
-// app/components/main/HintUnlockModal.tsx
-
 import { useUnlockHint } from '@/lib/hint/useUnlockHint'
-import { Modal, Text, TouchableOpacity, View } from 'react-native'
+import { Alert, Modal, Text, TouchableOpacity, View } from 'react-native'
 
 interface HintUnlockModalProps {
   visible: boolean
@@ -14,8 +12,17 @@ export function HintUnlockModal({ visible, hintType, targetId, onCancel }: HintU
   const { mutate, isPending } = useUnlockHint()
 
   const onConfirm = () => {
-    mutate({ hint_type: hintType, target_id: targetId, source: 'invite' })
-    onCancel()
+    mutate(
+      { hint_type: hintType, target_id: targetId, source: 'invite' },
+      {
+        onSuccess: () => {
+          onCancel()
+        },
+        onError: (err: any) => {
+          Alert.alert('힌트 해금 실패', err.message || '문제가 발생했어요. 다시 시도해주세요.')
+        }
+      }
+    )
   }
 
   const title = hintType === 'premium_a' ? '외형/취향 힌트 해금' : '성향/습관 힌트 해금'

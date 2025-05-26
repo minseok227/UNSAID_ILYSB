@@ -1,6 +1,5 @@
-import { fetchMyReferralCode } from '@/lib/fetch/fetchMyReferralCode'
+import { useMyReferralCode } from '@/lib/invite/fetchMyReferralCode'
 import { FontAwesome, MaterialCommunityIcons } from '@expo/vector-icons'
-import { useEffect, useState } from 'react'
 import { Modal, Share, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
 
 interface Props {
@@ -9,25 +8,17 @@ interface Props {
 }
 
 export default function InviteModal({ visible, onClose }: Props) {
-  const [referralCode, setReferralCode] = useState<string | null>(null)
+  const { data: referralCode } = useMyReferralCode()
 
-  useEffect(() => {
-    if (visible) {
-      fetchMyReferralCode().then((code) => {
-        setReferralCode(code)
-      })
-    }
-  }, [visible])
+  if (!visible) return null
 
-  const inviteUrl = `https://stillunsaid.app/invite?via=${referralCode}`
+  const inviteUrl = `https://stillunsaid.app/invite?via=${referralCode ?? '...'}`
 
   const handleShare = () => {
     Share.share({
       message: `누군가의 마음을 전하는 앱 💌\n지금 초대받아보세요!\n\n${inviteUrl}`,
     })
   }
-
-  if (!visible) return null
 
   return (
     <Modal transparent animationType="fade" visible={visible}>
@@ -39,12 +30,12 @@ export default function InviteModal({ visible, onClose }: Props) {
             누군가의 감정을 도와줄 수 있어요. 당신의 초대 한 번이면 충분해요.
           </Text>
 
-          <TouchableOpacity style={styles.button} onPress={handleShare}>
+          <TouchableOpacity style={styles.button} onPress={handleShare} disabled={!referralCode}>
             <FontAwesome name="camera" size={16} color="#000" style={styles.icon} />
             <Text style={styles.buttonText}>Instagram으로 초대</Text>
           </TouchableOpacity>
 
-          <TouchableOpacity style={styles.kakaoButton} onPress={handleShare}>
+          <TouchableOpacity style={styles.kakaoButton} onPress={handleShare} disabled={!referralCode}>
             <MaterialCommunityIcons name="chat" size={16} color="#000" style={styles.icon} />
             <Text style={styles.buttonText}>KakaoTalk으로 초대</Text>
           </TouchableOpacity>

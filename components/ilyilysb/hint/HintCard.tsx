@@ -1,10 +1,9 @@
-// app/components/main/HintCard.tsx
-
+import { useUnlockedHint } from '@/lib/hint/useUnlockedHint'
 import { useState } from 'react'
 import { Text, View } from 'react-native'
-import { HintGroup } from './HintGroup'
-import { HintUnlockModal } from './HintUnlockModal'
-import { LockHintGroup } from './LockHintGroup'
+import { HintGroup } from './hintcardgroup/HintGroup'
+import { HintUnlockModal } from './hintcardgroup/HintUnlockModal'
+import { LockHintGroup } from './hintcardgroup/LockHintGroup'
 
 interface HintCardProps {
   index: number
@@ -23,6 +22,10 @@ export function HintCard({ data, index }: HintCardProps) {
   const [expandedA, setExpandedA] = useState(false)
   const [expandedB, setExpandedB] = useState(false)
 
+  const { data: unlocked } = useUnlockedHint(data.user_id)
+  const isUnlockedA = unlocked?.premium_a ?? false
+  const isUnlockedB = unlocked?.premium_b ?? false
+
   const isIlysb = data.sources.includes('ilysb')
   const loveLabel = isIlysb ? 'Someone loves you so badly' : 'Someone like you'
 
@@ -38,31 +41,27 @@ export function HintCard({ data, index }: HintCardProps) {
       <HintGroup title="기본 힌트" hints={data.basic} />
 
       {/* Premium A */}
-      {data.premium_a ? (
-        <>
-          <HintGroup
-            title="외형/취향 힌트"
-            hints={data.premium_a}
-            collapsible
-            expanded={expandedA}
-            onToggle={() => setExpandedA(!expandedA)}
-          />
-        </>
+      {isUnlockedA && data.premium_a ? (
+        <HintGroup
+          title="외형/취향 힌트"
+          hints={data.premium_a}
+          collapsible
+          expanded={expandedA}
+          onToggle={() => setExpandedA(!expandedA)}
+        />
       ) : (
         <LockHintGroup label="외형/취향 힌트" onUnlock={() => setModalVisible('a')} />
       )}
 
       {/* Premium B */}
-      {data.premium_b ? (
-        <>
-          <HintGroup
-            title="성향/습관 힌트"
-            hints={data.premium_b}
-            collapsible
-            expanded={expandedB}
-            onToggle={() => setExpandedB(!expandedB)}
-          />
-        </>
+      {isUnlockedB && data.premium_b ? (
+        <HintGroup
+          title="성향/습관 힌트"
+          hints={data.premium_b}
+          collapsible
+          expanded={expandedB}
+          onToggle={() => setExpandedB(!expandedB)}
+        />
       ) : (
         <LockHintGroup label="성향/습관 힌트" onUnlock={() => setModalVisible('b')} />
       )}

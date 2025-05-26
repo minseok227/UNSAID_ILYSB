@@ -1,62 +1,27 @@
+// components/main/IlyCard.tsx
 import { ThemedText } from '@/components/ThemedText'
 import { ThemedView } from '@/components/ThemedView'
 import { IconSymbol } from '@/components/ui/IconSymbol'
-import { fetchIlyList } from '@/lib/fetch/list'
-import { useCallback, useEffect, useState } from 'react'
-import { FlatList, StyleSheet, TouchableOpacity, View } from 'react-native'
+import { StyleSheet, TouchableOpacity, View } from 'react-native'
+
+interface User {
+  id: string
+  name: string
+  username: string
+  isIlysb: boolean
+  daysToSb: number
+  daysToExpire: number
+}
 
 interface Props {
-  refreshTrigger?: boolean
-  triggerOnMount?: boolean
-  triggerOnSearch?: boolean
-  triggerOnSend?: boolean
+  user: User
+  onSend?: (user: { id: string; name: string; instagram_username: string }) => void
 }
 
-export function IlyCardList({
-  refreshTrigger,
-  triggerOnMount = true,
-  triggerOnSearch = false,
-  triggerOnSend = false,
-}: Props) {
-  const [users, setUsers] = useState<any[]>([])
-
-  const loadIlyList = useCallback(async () => {
-    const result = await fetchIlyList()
-    if (result) setUsers(result)
-  }, [])
-
-  useEffect(() => {
-    if (triggerOnMount) {
-      loadIlyList()
-    }
-  }, [loadIlyList, triggerOnMount])
-
-  useEffect(() => {
-    if (triggerOnSearch || triggerOnSend || refreshTrigger) {
-      loadIlyList()
-    }
-  }, [loadIlyList, triggerOnSearch, triggerOnSend, refreshTrigger])
-
-  if (!users || users.length === 0) return null
-
-  return (
-    <FlatList
-      data={users}
-      keyExtractor={(item) => item.id}
-      contentContainerStyle={{ paddingBottom: 120 }}
-      renderItem={({ item }) => <SingleIlyCard user={item} />}
-    />
-  )
-}
-
-function SingleIlyCard({
-  user,
-  onSend,
-}: {
-  user: any
-  onSend?: () => void
-}) {
+export function IlyCard({ user, onSend }: Props) {
   const heartColor = user.isIlysb ? '#A279C7' : '#F472B6'
+  const isEligibleToSendIlysb = user.daysToSb <= 0 && !user.isIlysb
+  const isExpired = user.daysToExpire <= 0
 
   return (
     <ThemedView style={styles.card}>
@@ -69,12 +34,35 @@ function SingleIlyCard({
       </View>
 
       <ThemedText style={styles.sentTag}>Sended</ThemedText>
-      <ThemedText style={styles.meta}>• 진심 보내기까지 {user.daysToSb}일 남음</ThemedText>
-      <ThemedText style={styles.meta}>• ILY 만료까지 D-{user.daysToExpire}</ThemedText>
 
-      {onSend && (
-        <TouchableOpacity onPress={onSend} style={styles.sendButton}>
-          <ThemedText style={styles.sendText}>Send ILY</ThemedText>
+      {user.isIlysb ? (
+        <ThemedText style={[styles.meta, { color: '#7C3AED' }]}>💌 진심을 이미 보냈어요</ThemedText>
+      ) : (
+        <>
+          <ThemedText style={styles.meta}>• 진심까지 {user.daysToSb}일 남음</ThemedText>
+          <ThemedText style={styles.meta}>• ILY 만료까지 D-{user.daysToExpire}</ThemedText>
+          {isEligibleToSendIlysb && (
+            <ThemedText style={[styles.meta, { color: '#7C3AED', fontWeight: '600' }]}>💜 지금 진심을 전할 수 있어요!</ThemedText>
+          )}
+        </>
+      )}
+
+      {onSend && !user.isIlysb && !isExpired && (
+        <TouchableOpacity
+          onPress={isEligibleToSendIlysb
+            ? () =>
+                onSend({
+                  id: user.id,
+                  name: user.name,
+                  instagram_username: user.username,
+                })
+            : undefined}
+          disabled={!isEligibleToSendIlysb}
+          style={[styles.sendButton, { opacity: isEligibleToSendIlysb ? 1 : 0.4 }]}
+        >
+          <ThemedText style={styles.sendText}>
+            {isEligibleToSendIlysb ? 'ILYSB 보내기' : '대기 중...'}
+          </ThemedText>
         </TouchableOpacity>
       )}
     </ThemedView>
@@ -132,5 +120,3 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
 })
-
-export { SingleIlyCard as IlyCard }

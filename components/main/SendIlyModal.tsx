@@ -1,5 +1,5 @@
 import { ThemedView } from '@/components/ThemedView'
-import { sendIly } from '@/lib/fetch/sendily'
+import { useSendIly } from '@/lib/main/sendily'
 import { showToast } from '@/lib/toast'
 import { Alert, Modal, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
 
@@ -15,17 +15,24 @@ interface Props {
 }
 
 export function SendIlyModal({ user, visible, onCancel, onConfirmSuccess }: Props) {
-  const handleSend = async () => {
-    const result = await sendIly(user.id)
+  const { mutate: sendIly, isPending } = useSendIly()
 
-    if (result === 'success') {
-      showToast(`${user.name}님에게 ILY를 보냈어요 💗`)
-      onConfirmSuccess()
-    } else if (result === 'duplicate') {
-      Alert.alert('이미 전송됨', '이 사용자에게는 이미 ILY를 보냈어요.')
-    } else {
-      Alert.alert('전송 실패', '다시 시도해주세요.')
-    }
+  const handleSend = () => {
+    sendIly(user.id, {
+      onSuccess: (result) => {
+        if (result === 'success') {
+          showToast(`${user.name}님에게 ILY를 보냈어요 💗`)
+          onConfirmSuccess()
+        } else if (result === 'duplicate') {
+          Alert.alert('이미 전송됨', '이 사용자에게는 이미 ILY를 보냈어요.')
+        } else {
+          Alert.alert('전송 실패', '다시 시도해주세요.')
+        }
+      },
+      onError: () => {
+        Alert.alert('오류 발생', 'ILY 전송 중 문제가 발생했습니다.')
+      }
+    })
   }
 
   return (
@@ -39,10 +46,10 @@ export function SendIlyModal({ user, visible, onCancel, onConfirmSuccess }: Prop
           </Text>
 
           <View style={styles.buttons}>
-            <TouchableOpacity onPress={onCancel} style={styles.cancelButton}>
+            <TouchableOpacity onPress={onCancel} style={styles.cancelButton} disabled={isPending}>
               <Text style={styles.cancelText}>취소</Text>
             </TouchableOpacity>
-            <TouchableOpacity onPress={handleSend} style={styles.confirmButton}>
+            <TouchableOpacity onPress={handleSend} style={styles.confirmButton} disabled={isPending}>
               <Text style={styles.confirmText}>보내기</Text>
             </TouchableOpacity>
           </View>

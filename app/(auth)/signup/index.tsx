@@ -1,4 +1,4 @@
-import { useSignupForm } from '@/hooks/userinfo/useSignupForm'
+import { useSignupForm } from '@/components/userinfo/useSignupForm'
 import { Animated, Dimensions, StyleSheet, View } from 'react-native'
 import SignupBasicStep from './BasicStep'
 import SignupPrefStep from './PrefStep'

@@ -1,4 +1,3 @@
-// /pages/api/hint/view.ts
 import { verifyUser } from '@/lib/hooks/auth/verifyUser'
 import { supabaseAdmin } from '@/lib/supabase-admin'
 import type { NextApiRequest, NextApiResponse } from 'next'
@@ -13,6 +12,29 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
   if (!target_id || !['premium_a', 'premium_b'].includes(hint_type) || !['invite', 'payment'].includes(source)) {
     return res.status(400).json({ error: 'Invalid parameters' })
+  }
+
+  // ✅ 초대 기반 열람 조건 추가 (양방향)
+  if (source === 'invite') {
+    const { data: me } = await supabaseAdmin
+      .from('users')
+      .select('id, invited_by_user_id')
+      .eq('id', user.id)
+      .maybeSingle()
+
+    const { data: invitedByMe } = await supabaseAdmin
+      .from('users')
+      .select('id')
+      .eq('invited_by_user_id', user.id)
+      .limit(1)
+      .maybeSingle()
+
+    const isInvited = !!me?.invited_by_user_id
+    const hasInvitedSomeone = !!invitedByMe
+
+    if (!isInvited && !hasInvitedSomeone) {
+      return res.status(403).json({ error: '초대된 사용자 또는 초대한 사용자만 열람할 수 있어요.' })
+    }
   }
 
   // 1. 기존 열람 여부 확인

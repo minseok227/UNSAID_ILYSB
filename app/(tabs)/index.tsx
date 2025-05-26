@@ -1,68 +1,91 @@
 import InviteModal from '@/components/invite/invite'
-import { IlyCardList } from '@/components/main/IlyCard'
+import IlyCardList from '@/components/main/IlycardList'
 import { InlineSearchStepInput } from '@/components/main/InlineSearchInput'
 import { SearchedUserCard } from '@/components/main/SearchedUserCard'
 import { SendIlyModal } from '@/components/main/SendIlyModal'
+import { SendIlysbModal } from '@/components/main/SendIlysbModal'
 import { useFocusEffect } from '@react-navigation/native'
 import { useCallback, useState } from 'react'
 import { View } from 'react-native'
 
-type UserResult = {
-  id: string
-  name: string
-  instagram_username: string
-}
-
-export default function MainTab() {
-  const [searchedUser, setSearchedUser] = useState<UserResult | null>(null)
-  const [showModal, setShowModal] = useState(false)
-  const [refreshKey, setRefreshKey] = useState(0)
-  const [inviteVisible, setInviteVisible] = useState(false)
-
-  const handleSearchResult = (user: UserResult | null) => {
-    setSearchedUser(user)
-    setInviteVisible(user === null)
-    if (user) setShowModal(true)
+  type UserResult = {
+    id: string
+    name: string
+    instagram_username: string
+    isIlysb?: boolean
+    daysToSb?: number
+    daysToExpire?: number
   }
 
-  const handleIlySendSuccess = () => {
-    setShowModal(false)
-    setSearchedUser(null)
-    setRefreshKey((prev) => prev + 1)
-  }
+  export default function MainTab() {
+    const [searchedUser, setSearchedUser] = useState<UserResult | null>(null)
+    const [showIlyModal, setShowIlyModal] = useState(false)
+    const [showIlysbModal, setShowIlysbModal] = useState(false)
+    const [inviteVisible, setInviteVisible] = useState(false)
+    const [refreshKey, setRefreshKey] = useState(0)
 
-  useFocusEffect(
-    useCallback(() => {
-      setInviteVisible(false)
-      setSearchedUser(null)
-      setShowModal(false)
+    const openModal = useCallback((user: UserResult) => {
+      setSearchedUser(user)
+      const isEligibleForIlysb = user.daysToSb !== undefined && user.daysToSb <= 0 && !user.isIlysb
+      setShowIlysbModal(isEligibleForIlysb)
+      setShowIlyModal(!isEligibleForIlysb)
     }, [])
-  )
 
-  return (
-    <View style={{ flex: 1, paddingHorizontal: 24, paddingTop: 32, backgroundColor: '#FFFCF5' }}>
-      <InlineSearchStepInput onResult={handleSearchResult} />
+    const handleSearchResult = useCallback((user: UserResult | null) => {
+      setSearchedUser(user)
+      setInviteVisible(user === null)
+      if (user) openModal(user)
+    }, [openModal])
 
-      {inviteVisible && (
-        <View style={{ marginTop: 12 }}>
-          <InviteModal visible={inviteVisible} onClose={() => setInviteVisible(false)} />
-        </View>
-      )}
+    const handleSuccess = () => {
+      setShowIlyModal(false)
+      setShowIlysbModal(false)
+      setSearchedUser(null)
+      setRefreshKey(prev => prev + 1)
+    }
 
-      {searchedUser && !showModal && (
-        <SearchedUserCard user={searchedUser} onSend={() => setShowModal(true)} />
-      )}
+    useFocusEffect(
+      useCallback(() => {
+        setInviteVisible(false)
+        setSearchedUser(null)
+        setShowIlyModal(false)
+        setShowIlysbModal(false)
+      }, [])
+    )
 
-      <IlyCardList key={refreshKey} />
+    return (
+      <View style={{ flex: 1, paddingHorizontal: 24, paddingTop: 32, backgroundColor: '#FFFCF5' }}>
+        <InlineSearchStepInput onResult={handleSearchResult} />
 
-      {searchedUser && (
-        <SendIlyModal
-          visible={showModal}
-          user={searchedUser}
-          onCancel={() => setShowModal(false)}
-          onConfirmSuccess={handleIlySendSuccess}
-        />
-      )}
-    </View>
-  )
-}
+        {inviteVisible && (
+          <View style={{ marginTop: 12 }}>
+            <InviteModal visible={inviteVisible} onClose={() => setInviteVisible(false)} />
+          </View>
+        )}
+
+        {searchedUser && !showIlyModal && !showIlysbModal && (
+          <SearchedUserCard user={searchedUser} onSend={() => openModal(searchedUser)} />
+        )}
+
+        <IlyCardList key={refreshKey} onSend={openModal} />
+
+        {searchedUser && showIlyModal && (
+          <SendIlyModal
+            visible
+            user={searchedUser}
+            onCancel={() => setShowIlyModal(false)}
+            onConfirmSuccess={handleSuccess}
+          />
+        )}
+
+        {searchedUser && showIlysbModal && (
+          <SendIlysbModal
+            visible
+            user={searchedUser}
+            onCancel={() => setShowIlysbModal(false)}
+            onConfirmSuccess={handleSuccess}
+          />
+        )}
+      </View>
+    )
+  }

@@ -1,5 +1,3 @@
-// app/hooks/useUnlockHint.ts
-
 import { authorizedFetch } from '@/lib/auth/fetcher'
 import { API_BASE_URL } from '@/lib/constants'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
@@ -20,12 +18,19 @@ export function useUnlockHint() {
         body: JSON.stringify({ target_id, hint_type, source })
       })
 
+      const body = await res.json()
+
       if (!res.ok) {
-        const err = await res.json()
-        throw new Error(err.error || '힌트 해금 실패')
+        if (res.status === 403) {
+          throw new Error('초대에 참여한 사용자만 힌트를 열람할 수 있어요.')
+        } else if (res.status === 409) {
+          throw new Error('이미 열람한 힌트입니다.')
+        } else {
+          throw new Error(body.error || '힌트 해금 실패')
+        }
       }
 
-      return res.json()
+      return body
     },
     onSuccess: (_, { target_id }) => {
       queryClient.invalidateQueries({ queryKey: ['hintList'] })

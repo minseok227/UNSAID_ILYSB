@@ -1,5 +1,5 @@
-import { fetchSearchedUser } from '@/lib/fetch/usersearch'
-import { useState } from 'react'
+import { useSearchUser } from '@/lib/main/usersearch'
+import { useEffect, useState } from 'react'
 import { StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native'
 
 type UserResult = {
@@ -14,15 +14,21 @@ interface Props {
 export function InlineSearchStepInput({ onResult }: Props) {
   const [name, setName] = useState('')
   const [instaId, setInstaId] = useState('')
-  const [loading, setLoading] = useState(false)
+  const [searchClicked, setSearchClicked] = useState(false)
 
   const isSearchable = name.trim().length > 1 && instaId.trim().length > 2
 
-  const handleSearch = async () => {
-    setLoading(true)
-    const result = await fetchSearchedUser(name, instaId)
-    onResult(result)
-    setLoading(false)
+  const { data, isPending } = useSearchUser(name, instaId, searchClicked)
+
+  useEffect(() => {
+    if (!isPending && searchClicked) {
+      onResult(data ?? null)
+      setSearchClicked(false)
+    }
+  }, [data, isPending, searchClicked, onResult])
+
+  const handleSearch = () => {
+    setSearchClicked(true)
   }
 
   return (
@@ -46,7 +52,7 @@ export function InlineSearchStepInput({ onResult }: Props) {
       )}
       {isSearchable && (
         <TouchableOpacity onPress={handleSearch} style={styles.button}>
-          <Text style={styles.buttonText}>{loading ? '검색 중...' : '검색'}</Text>
+          <Text style={styles.buttonText}>{isPending ? '검색 중...' : '검색'}</Text>
         </TouchableOpacity>
       )}
     </View>
